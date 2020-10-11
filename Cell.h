@@ -12,10 +12,7 @@ class Cell {
     bool isAlive();
     void killCell();
     void createCell();
-    void setNeighbors(int newNeighborsAmt);
-    int getNeighbors();
 
   private:
     bool alive;
-    int neighbors;
 };

@@ -1,40 +1,40 @@
 #include "FileIO.h"
 
 FileIO::FileIO() {
-  newInputFilePath = getInputFilePathFromUser();
+  inputFilePath = getInputFilePathFromUser();
   while(true) {
-    input.open(newInputFilePath);
+    input.open(inputFilePath);
     if(!input.fail()) {
       if(checkInputFileValidity()) {
         break;
       } else {
         input.close();
         cout << "ERROR: File entered is not the correct format. Please try again with a different file." << endl;
-        newInputFilePath = getInputFilePathFromUser();
+        inputFilePath = getInputFilePathFromUser();
       }
     } else {
       input.close();
       cout << "ERROR: Invalid file path. Please try again." << endl;
-      newInputFilePath = getInputFilePathFromUser();
+      inputFilePath = getInputFilePathFromUser();
     }
   }
 
-  newOutputFileName = getOutputFileNameFromUser();
+  outputFileName = getOutputFileNameFromUser();
   while(true) {
-    newOutputFileName = newOutputFileName + ".out";
-    output.open(newOutputFileName);
+    outputFileName = outputFileName + ".out";
+    output.open(outputFileName);
     if(!output.fail()) {
       break;
     } else {
       output.close();
       cout << "ERROR: Invalid file name entered. Please try again." << endl;
-      newOutputFileName = getOutputFileNameFromUser();
+      outputFileName = getOutputFileNameFromUser();
     }
   }
 }
 
 FileIO::FileIO(string newInputFilePath, string newOutputFileName) {
-  if(newInputFilePath.compare("null") !== 0) {
+  if(newInputFilePath.compare("null") != 0) {
     while(true) {
       input.open(newInputFilePath);
       if(!input.fail()) {
@@ -51,9 +51,12 @@ FileIO::FileIO(string newInputFilePath, string newOutputFileName) {
         newInputFilePath = getInputFilePathFromUser();
       }
     }
+    inputFilePath = newInputFilePath;
+  } else {
+    inputFilePath = "null";
   }
 
-  if(newOutputFileName.compare("null") !== 0) {
+  if(newOutputFileName.compare("null") != 0) {
     while(true) {
       newOutputFileName = newOutputFileName + ".out";
       output.open(newOutputFileName);
@@ -62,17 +65,19 @@ FileIO::FileIO(string newInputFilePath, string newOutputFileName) {
       } else {
         output.close();
         cout << "ERROR: Invalid file name entered. Please try again." << endl;
-        newOutputFileName = getOutputFileNameFromUser();
+        outputFileName = getOutputFileNameFromUser();
       }
     }
+  } else {
+    outputFileName = "null";
   }
 }
 
 FileIO::~FileIO() {
-  if(input.isOpen()) {
+  if(input.is_open()) {
     input.close();
   }
-  if(output.isOpen()) {
+  if(output.is_open()) {
     output.close();
   }
 }
@@ -99,7 +104,7 @@ string FileIO::getInputFilePathFromUser() {
 }
 
 string FileIO::getOutputFileNameFromUser() {
-  cout << "Enter name of the output file. Do not add an extension. If your file name is already in use, it will be overwritten should it also have the \".out\" extension." << endl;
+  cout << "Enter name of the output file. If your file name is already in use, it will be overwritten should it also have the \".out\" extension." << endl;
   string tempPath = "";
   cin >> tempPath;
   return tempPath;
@@ -113,7 +118,7 @@ bool FileIO::checkInputFileValidity() {
   if(checkIfStringIsNumber(tempString)) {
     stringstream stringToNum(tempString);
     stringToNum >> tempHeight;
-    if(tempHeight == 0) {
+    if(tempHeight <= 1) {
       return false;
     }
   }
@@ -123,7 +128,7 @@ bool FileIO::checkInputFileValidity() {
   if(checkIfStringIsNumber(tempString)) {
     stringstream stringToNum(tempString);
     stringToNum >> tempWidth;
-    if(tempWidth == 0) {
+    if(tempWidth <= 1) {
       return false;
     }
   }
@@ -131,22 +136,21 @@ bool FileIO::checkInputFileValidity() {
   int loopCounter = 0;
   while(inputHasDataLeft()) {
     tempString = readNextLine();
-    if(tempString.length() !== tempWidth) {
+    if(tempString.length() != tempWidth) {
       return false;
     }
     ++loopCounter;
     for(int i = 0; i < tempString.length(); ++i) {
-      if(tempString[i] != "-" && tempString[i] != "X") {
+      if(tempString[i] != '-' && tempString[i] != 'X') {
         return false;
       }
     }
   }
-  if(loopCounter !== height) {
+  if(loopCounter != tempHeight) {
     return false;
   }
 
-  input.seekg(firstpos);
-  delete firstPos;
+  input.seekg(firstPos);
   return true;
 }
 
@@ -155,7 +159,7 @@ bool FileIO::checkIfStringIsNumber(string tempString) {
     return false;
   }
   for(int i = 0; i < tempString.length(); ++i) {
-    if(!tempString[i].isDigit()) {
+    if(!isdigit(tempString[i])) {
       return false;
     }
   }
@@ -163,7 +167,7 @@ bool FileIO::checkIfStringIsNumber(string tempString) {
 }
 
 bool FileIO::isNeeded() {
-  if(!input.isOpen() && !output.isOpen()) {
+  if(!input.is_open() && !output.is_open()) {
     return false;
   } else {
     return true;
